@@ -42,6 +42,7 @@ const SETTING_DEFAULTS = {
     disabledConditionals: [],
     showCurrentState: true,
     contextMessages: 10,
+    evalTiming: 'before',  // 'before' or 'after'
 };
 
 function ensureSettings() {
@@ -386,28 +387,22 @@ async function uploadSpriteZip(file) {
 // ─── Event Handlers ──────────────────────────────────────────────
 
 async function onChatCompletionReady(data) {
-    if (!getSettings().enabled) return;
+    const settings = getSettings();
+    if (!settings.enabled) return;
+    if (settings.evalTiming === 'after') return; // After-gen mode — skip pre-gen
 
     const context = getContext();
     const lastMsg = context.chat?.slice(-1)?.[0];
 
-    // A new user message resets the flag — sidecar can run again
-    if (lastMsg?.is_user) {
-        _sidecarRanThisTurn = false;
-    }
-
+    if (lastMsg?.is_user) _sidecarRanThisTurn = false;
     if (_sidecarRanThisTurn) return;
 
-    // Skip sidecar if a slash command just set an expression
     if (_slashCommandCooldown && Date.now() - _slashCommandCooldown < 3000) {
         _slashCommandCooldown = 0;
         return;
     }
 
-    // Skip recursive tool passes
-    if (lastMsg?.extra?.tool_invocations != null) {
-        return;
-    }
+    if (lastMsg?.extra?.tool_invocations != null) return;
 
     _sidecarRanThisTurn = true;
     await runSidecar();
@@ -419,11 +414,24 @@ async function onChatCompletionReady(data) {
  * Save the sidecar's pending picks to this message's metadata.
  */
 async function onMessageReceived(messageId) {
-    if (!getSettings().enabled) return;
+    const settings = getSettings();
+    if (!settings.enabled) return;
 
-    // Save pending sidecar picks to the new AI message
     const context = getContext();
     const msg = context.chat?.[messageId];
+
+    // After-gen mode: run sidecar now that the AI response is complete
+    if (settings.evalTiming === 'after' && msg && !msg.is_user) {
+        if (_sidecarRanThisTurn) return;
+        if (_slashCommandCooldown && Date.now() - _slashCommandCooldown < 3000) {
+            _slashCommandCooldown = 0;
+            return;
+        }
+        _sidecarRanThisTurn = true;
+        await runSidecar();
+    }
+
+    // Save pending sidecar picks to the new AI message
     if (msg && !msg.is_user && (_pendingSidecarExpression || _pendingSidecarBackground)) {
         if (!msg.extra) msg.extra = {};
         if (_pendingSidecarExpression) msg.extra.bunmoji_expression = _pendingSidecarExpression;
@@ -1092,6 +1100,12 @@ function bindUIEvents() {
         saveSettings();
     });
 
+    $('#bm_eval_timing').on('change', function () {
+        const settings = getSettings();
+        settings.evalTiming = $(this).val();
+        saveSettings();
+    });
+
     // Background tool toggle
     $('#bm_bg_enabled').on('change', async function () {
         const settings = getSettings();
@@ -1336,6 +1350,7 @@ function loadSettingsUI() {
     $('#bm_bg_enabled').prop('checked', settings.bgToolEnabled || false);
     $('#bm_show_current_state').prop('checked', settings.showCurrentState !== false);
     $('#bm_context_messages').val(settings.contextMessages || 10);
+    $('#bm_eval_timing').val(settings.evalTiming || 'before');
     renderConnectionProfiles();
 }
 

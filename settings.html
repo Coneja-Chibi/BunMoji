@@ -43,6 +43,13 @@
                     <span style="font-size: 11px; white-space: nowrap;">Context messages:</span>
                     <input id="bm_context_messages" type="number" min="1" max="50" style="width: 50px; padding: 2px 4px; font-size: 11px; background: rgba(0,0,0,0.2); border: 1px solid rgba(232,105,154,0.2); border-radius: 4px; color: inherit;" />
                 </div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+                    <span style="font-size: 11px; white-space: nowrap;">Evaluate:</span>
+                    <select id="bm_eval_timing" class="bm-select" style="flex: 1; padding: 2px 4px; font-size: 11px;">
+                        <option value="before">Before generation (predictive)</option>
+                        <option value="after">After generation (reactive)</option>
+                    </select>
+                </div>
             </div>
 
             <div id="bm_main_controls" style="display:none;">
