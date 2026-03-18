@@ -1,0 +1,11 @@
+{
+    "display_name": "BunMoji",
+    "loading_order": 60,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "Coneja-Chibi",
+    "version": "0.1.0",
+    "description": "Tool-called sprite expressions. The AI chooses character emotions as deliberate tool calls instead of post-hoc classification."
+}

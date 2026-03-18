@@ -1,0 +1,166 @@
+<div id="bunmoji_settings" class="bm-extension">
+    <div class="bm-container">
+        <div class="bm-header" id="bm_header_toggle">
+            <div class="bm-header-icon"><i class="fa-solid fa-face-smile-beam"></i></div>
+            <div class="bm-header-text">
+                <span class="bm-header-title">BunMoji</span>
+                <span class="bm-header-subtitle">Sidecar-driven sprite expressions</span>
+            </div>
+            <div class="bm-header-badge">v0.1</div>
+            <div class="bm-header-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="bm-settings-body" style="display:none;">
+
+            <div class="bm-description">
+                A sidecar LLM picks character expressions and scene backgrounds before the main model generates.
+                No more guessing emotions from text &mdash; the AI chooses intentionally.
+            </div>
+
+            <!-- Global Enable -->
+            <div class="bm-setting-row">
+                <label class="bm-toggle">
+                    <input id="bm_global_enabled" type="checkbox" />
+                    <span class="bm-toggle-slider"></span>
+                    <span class="bm-toggle-label">Enable BunMoji</span>
+                </label>
+                <div class="bm-help-text">Enables sidecar-driven expressions and suppresses ST's built-in classifier.</div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                    <i class="fa-solid fa-satellite-dish" style="font-size: 11px; color: #e8699a;"></i>
+                    <span style="font-size: 11px; font-weight: 600; white-space: nowrap;">Sidecar:</span>
+                    <select id="bm_connection_profile" class="bm-select" style="flex: 1; padding: 4px 8px; font-size: 11px;">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="bm-help-text">Connection profile for the sidecar LLM. Required for BunMoji to function.</div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                    <label class="bm-toggle" style="flex: 1;">
+                        <input id="bm_show_current_state" type="checkbox" />
+                        <span class="bm-toggle-slider" style="width: 32px; height: 18px;"></span>
+                        <span style="font-size: 11px;">Show current state to sidecar</span>
+                    </label>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+                    <span style="font-size: 11px; white-space: nowrap;">Context messages:</span>
+                    <input id="bm_context_messages" type="number" min="1" max="50" style="width: 50px; padding: 2px 4px; font-size: 11px; background: rgba(0,0,0,0.2); border: 1px solid rgba(232,105,154,0.2); border-radius: 4px; color: inherit;" />
+                </div>
+            </div>
+
+            <div id="bm_main_controls" style="display:none;">
+
+                <!-- Label Sprites -->
+                <div class="bm-card">
+                    <div class="bm-card-header">
+                        <i class="fa-solid fa-images"></i>
+                        <span>Label Sprites</span>
+                    </div>
+                    <div class="bm-card-body">
+                        <div class="bm-help-text" style="margin-bottom: 8px;">
+                            The base expression set. The AI picks the best-fit label for the current scene.
+                            These are auto-detected from your character's sprite folder.
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="font-size: 12px; font-weight: 600; white-space: nowrap;">Fallback:</span>
+                            <select id="bm_fallback_expression" class="bm-select" style="flex: 1;">
+                                <option value="neutral">neutral</option>
+                            </select>
+                            <div class="bm-help-text" style="margin: 0;">Used when the sidecar doesn't pick an expression.</div>
+                        </div>
+                        <div id="bm_label_grid" class="bm-sprite-grid">
+                            <!-- Rendered by JS -->
+                        </div>
+                        <div id="bm_drop_zone" class="bm-drop-zone">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>Drop sprite images here</span>
+                            <small>Images or ZIP files. Filenames become labels (e.g. smug.png &rarr; "smug")</small>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <button id="bm_upload_sprites" class="bm-btn bm-btn-secondary" style="flex:1;">
+                                <i class="fa-solid fa-upload"></i> Browse Files
+                            </button>
+                            <button id="bm_refresh_labels" class="bm-btn bm-btn-secondary" style="flex:0 0 auto;">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conditional Sprites -->
+                <div class="bm-card">
+                    <div class="bm-card-header bm-card-header-collapsible" id="bm_conditionals_header">
+                        <i class="fa-solid fa-filter"></i>
+                        <span>Conditional Sprites</span>
+                        <i class="fa-solid fa-chevron-down bm-collapse-icon"></i>
+                    </div>
+                    <div class="bm-card-body" style="display:none;">
+                        <div class="bm-help-text" style="margin-bottom: 8px;">
+                            Override sprites that activate when narrative conditions are met.
+                            Evaluated by sidecar before each generation.
+                        </div>
+                        <div id="bm_conditional_sprites_list" class="bm-conditional-sprites-grid">
+                            <!-- Rendered by JS -->
+                        </div>
+                        <div id="bm_cond_drop_zone" class="bm-drop-zone" style="margin-top: 8px;">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>Drop conditional sprite images here</span>
+                            <small>Images or ZIP files. Add conditions after upload.</small>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <button id="bm_cond_upload" class="bm-btn bm-btn-secondary" style="flex:1;">
+                                <i class="fa-solid fa-upload"></i> Browse Files
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Background Tool -->
+                <div class="bm-card">
+                    <div class="bm-card-header bm-card-header-collapsible" id="bm_bg_header">
+                        <i class="fa-solid fa-panorama"></i>
+                        <span>Background Tool</span>
+                        <i class="fa-solid fa-chevron-down bm-collapse-icon"></i>
+                    </div>
+                    <div class="bm-card-body" style="display:none;">
+                        <div class="bm-help-text" style="margin-bottom: 8px;">
+                            Let the AI change the scene background based on the current location.
+                            Uses your existing backgrounds from ST's background gallery.
+                        </div>
+                        <div class="bm-setting-row" style="margin: 0; padding: 8px 0; background: none; border: none;">
+                            <label class="bm-toggle">
+                                <input id="bm_bg_enabled" type="checkbox" />
+                                <span class="bm-toggle-slider"></span>
+                                <span class="bm-toggle-label">Enable Background Tool</span>
+                            </label>
+                        </div>
+                        <div id="bm_bg_gallery" class="bm-bg-gallery" style="margin: 8px 0;">
+                            <!-- Rendered by JS -->
+                        </div>
+                        <div id="bm_bg_conditionals_list" class="bm-conditional-list" style="margin: 8px 0;">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnostics -->
+                <div class="bm-card">
+                    <div class="bm-card-header bm-card-header-collapsible" id="bm_diagnostics_header">
+                        <i class="fa-solid fa-stethoscope"></i>
+                        <span>Diagnostics</span>
+                        <i class="fa-solid fa-chevron-down bm-collapse-icon"></i>
+                    </div>
+                    <div class="bm-card-body" style="display:none;">
+                        <div class="bm-help-text" style="margin-bottom: 8px;">
+                            Check for configuration issues, missing sprites, and sidecar problems.
+                        </div>
+                        <button id="bm_run_diagnostics" class="bm-btn bm-btn-secondary" style="width: 100%;">
+                            <i class="fa-solid fa-stethoscope"></i> Run Diagnostics
+                        </button>
+                        <div id="bm_diagnostics_output" style="display:none; margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.15); border-radius: 6px; max-height: 300px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <input type="file" id="bm_file_input" accept="image/*,.zip" multiple style="display:none;" />
+    <input type="file" id="bm_cond_file_input" accept="image/*,.zip" multiple style="display:none;" />
+</div>
