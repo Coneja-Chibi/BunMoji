@@ -35,8 +35,8 @@
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
                     <label class="bm-toggle" style="flex: 1;">
                         <input id="bm_show_current_state" type="checkbox" />
-                        <span class="bm-toggle-slider" style="width: 32px; height: 18px;"></span>
-                        <span style="font-size: 11px;">Show current state to sidecar</span>
+                        <span class="bm-toggle-slider"></span>
+                        <span class="bm-toggle-label">Show current state to sidecar</span>
                     </label>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
@@ -46,8 +46,8 @@
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
                     <span style="font-size: 11px; white-space: nowrap;">Evaluate:</span>
                     <select id="bm_eval_timing" class="bm-select" style="flex: 1; padding: 2px 4px; font-size: 11px;">
-                        <option value="before">React to user's message</option>
-                        <option value="after">React to AI's response</option>
+                        <option value="before">Before generation (react to user's message)</option>
+                        <option value="after">After generation (react to AI's response)</option>
                     </select>
                 </div>
             </div>
