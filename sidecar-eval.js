@@ -60,6 +60,8 @@ export async function runSidecar() {
     setSidecarActive(true);
 
     try {
+        const charName = context.name2 || 'the character';
+
         // Build tools with ALL options in enum
         const tools = buildSelectionTools(allSpriteOptions, allBgOptions, settings.bgToolEnabled, charName);
 
@@ -72,9 +74,6 @@ export async function runSidecar() {
             currentExpression = recentWithExpr?.extra?.bunmoji_expression || null;
             currentBackground = recentWithBg?.extra?.bunmoji_background || null;
         }
-
-        // Build prompt with conditional rules baked in
-        const charName = context.name2 || 'the character';
         const prompt = buildUnifiedPrompt({
             recentMessages,
             spriteLabels,
