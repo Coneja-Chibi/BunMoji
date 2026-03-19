@@ -61,7 +61,7 @@ export async function runSidecar() {
 
     try {
         // Build tools with ALL options in enum
-        const tools = buildSelectionTools(allSpriteOptions, allBgOptions, settings.bgToolEnabled);
+        const tools = buildSelectionTools(allSpriteOptions, allBgOptions, settings.bgToolEnabled, charName);
 
         // Get current state for context (if setting enabled)
         let currentExpression = null;
@@ -74,6 +74,7 @@ export async function runSidecar() {
         }
 
         // Build prompt with conditional rules baked in
+        const charName = context.name2 || 'the character';
         const prompt = buildUnifiedPrompt({
             recentMessages,
             spriteLabels,
@@ -83,9 +84,10 @@ export async function runSidecar() {
             bgEnabled: settings.bgToolEnabled,
             currentExpression,
             currentBackground,
+            charName,
         });
 
-        const systemPrompt = 'You are a visual director for a roleplay scene. Evaluate conditions, then pick the best expression and background. Keep reasoning to 1-2 sentences. You MUST call your assigned tools.';
+        const systemPrompt = `You are a visual director for a roleplay scene. Pick the expression for ${charName} (the AI character, NOT the user). Keep reasoning to 1-2 sentences. You MUST call your assigned tools.`;
 
         let result = { expression: null, background: null, expressionReasoning: null, backgroundReasoning: null };
 
@@ -176,8 +178,9 @@ export async function runSidecar() {
  * Build a single prompt that handles conditionals + selection.
  * The model evaluates conditions internally and picks accordingly.
  */
-function buildUnifiedPrompt({ recentMessages, spriteLabels, conditionalSprites, conditionalBgs, bgFilenames, bgEnabled, jsonMode = false, currentExpression = null, currentBackground = null }) {
+function buildUnifiedPrompt({ recentMessages, spriteLabels, conditionalSprites, conditionalBgs, bgFilenames, bgEnabled, jsonMode = false, currentExpression = null, currentBackground = null, charName = 'the character' }) {
     let prompt = 'Current scene:\n' + recentMessages + '\n\n';
+    prompt += `You are picking the expression for **${charName}** (the AI character). NOT the user.\n\n`;
 
     // Show current state if available
     if (currentExpression || currentBackground) {
@@ -277,13 +280,13 @@ function buildUnifiedPrompt({ recentMessages, spriteLabels, conditionalSprites, 
 
 // ─── Tool Definitions ───────────────────────────────────────────
 
-function buildSelectionTools(spriteLabels, bgFilenames, bgEnabled) {
+function buildSelectionTools(spriteLabels, bgFilenames, bgEnabled, charName = 'the character') {
     const tools = [];
 
     if (spriteLabels.length > 0) {
         tools.push({
             name: 'set_expression',
-            description: `Set the character's expression. Pick the best fit for the current scene.`,
+            description: `Set ${charName}'s expression. Pick the best fit for ${charName}'s emotional state in the current scene. NOT the user's emotions.`,
             parameters: {
                 type: 'object',
                 properties: {
