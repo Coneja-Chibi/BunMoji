@@ -404,6 +404,10 @@ async function onChatCompletionReady(data) {
 
     if (lastMsg?.extra?.tool_invocations != null) return;
 
+    // Skip if this character has no sprites
+    const cached = getCachedSpriteLabels();
+    if (cached.length === 0) return;
+
     _sidecarRanThisTurn = true;
     await runSidecar();
 }
@@ -423,6 +427,7 @@ async function onMessageReceived(messageId) {
     // After-gen mode: run sidecar now that the AI response is complete
     if (settings.evalTiming === 'after' && msg && !msg.is_user) {
         if (_sidecarRanThisTurn) return;
+        if (getCachedSpriteLabels().length === 0) return;
         if (_slashCommandCooldown && Date.now() - _slashCommandCooldown < 3000) {
             _slashCommandCooldown = 0;
             return;
