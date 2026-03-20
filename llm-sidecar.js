@@ -22,6 +22,7 @@ const PROVIDER_MAP = {
     claude:       { format: 'anthropic', endpoint: 'https://api.anthropic.com/v1/messages',                   secretKey: 'api_key_claude' },
     openrouter:   { format: 'openai',    endpoint: 'https://openrouter.ai/api/v1/chat/completions',           secretKey: 'api_key_openrouter' },
     makersuite:   { format: 'google',    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',  secretKey: 'api_key_makersuite' },
+    google:       { format: 'google',    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',  secretKey: 'api_key_makersuite' },
     deepseek:     { format: 'openai',    endpoint: 'https://api.deepseek.com/v1/chat/completions',            secretKey: 'api_key_deepseek' },
     mistralai:    { format: 'openai',    endpoint: 'https://api.mistral.ai/v1/chat/completions',              secretKey: 'api_key_mistralai' },
     custom:       { format: 'openai',    endpoint: null,                                                       secretKey: 'api_key_custom' },
