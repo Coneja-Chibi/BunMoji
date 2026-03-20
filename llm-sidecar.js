@@ -143,6 +143,9 @@ function resolveProfileConfig() {
     const info = getProviderInfo(profile.api);
 
     let endpoint = info.endpoint || profile['api-url'] || null;
+    if (endpoint && endpoint.includes('/subscription/')) {
+        endpoint = endpoint.replace('/subscription/', '/');
+    }
     if (!info.endpoint && endpoint && info.format === 'openai' && !endpoint.endsWith('/chat/completions')) {
         endpoint = endpoint.replace(/\/+$/, '') + '/chat/completions';
     }
